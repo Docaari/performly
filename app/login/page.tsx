@@ -20,9 +20,14 @@ function LoginContent() {
             const fullError = (errorDesc || error || "").toLowerCase();
             if (fullError.includes("expired") || error === "otp_expired") {
                 setMessage({
-                    text: "O link expirou ou já foi usado. Por favor, solicite um novo Magic Link e certifique-se de clicar no email mais recente recebido.",
+                    text: "O link expirou ou já foi usado. Por favor, solicite um novo Magic Link e clique no recebido mais recentemente.",
                     type: "error"
                 });
+            } else if (error === "missing_params") {
+                setMessage({ text: "Link incompleto ou inválido. Tente novamente.", type: "error" });
+            } else if (error === "auth_failed") {
+                const reason = searchParams.get("reason");
+                setMessage({ text: `Falha na Autenticação: ${reason || "Credencial inválida."}`, type: "error" });
             } else {
                 setMessage({ text: "Não foi possível autenticar. Detalhes: " + (errorDesc || error), type: "error" });
             }
@@ -37,7 +42,7 @@ function LoginContent() {
         const { error } = await supabase.auth.signInWithOtp({
             email,
             options: {
-                emailRedirectTo: `${location.origin} /auth/callback`,
+                emailRedirectTo: `${location.origin}/auth/callback`,
             },
         });
 
@@ -54,7 +59,7 @@ function LoginContent() {
         const { error } = await supabase.auth.signInWithOAuth({
             provider: "google",
             options: {
-                redirectTo: `${location.origin} /auth/callback`,
+                redirectTo: `${location.origin}/auth/callback`,
             },
         });
 
