@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { LogoutButton } from '@/components/LogoutButton';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -15,6 +16,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <div className="pt-4 mt-4 border-t border-gray-100">
             <Link href="/focus" className="block p-3 rounded-lg bg-green-50 text-green-700 font-bold hover:bg-green-100 transition">Focar (Pomodoro)</Link>
           </div>
+        </div>
+        <div className="p-6 border-t border-gray-200">
+          <LogoutButton />
         </div>
       </nav>
 

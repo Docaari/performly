@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@/utils/supabase/server';
 
 export type Task = {
     id: string;
@@ -10,7 +10,7 @@ export type Task = {
 };
 
 export async function fetchTasks(): Promise<Task[]> {
-    if (!supabase) throw new Error('Supabase client não inicializado. Configure as variáveis de ambiente.');
+    const supabase = await createClient();
 
     const { data, error } = await supabase
         .from('tasks')

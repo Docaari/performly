@@ -8,8 +8,8 @@ export default async function TasksPage() {
 
     try {
         tasks = await fetchTasks();
-    } catch (error: any) {
-        fetchError = error.message;
+    } catch (error: unknown) {
+        fetchError = error instanceof Error ? error.message : String(error);
     }
 
     const renderStatus = (status: string) => {

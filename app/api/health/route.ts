@@ -27,9 +27,10 @@ export async function GET() {
         }
 
         return NextResponse.json({ ok: true, supabase: 'connected' });
-    } catch (err: any) {
+    } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : String(err);
         return NextResponse.json(
-            { ok: false, error: 'Erro inesperado', details: err.message },
+            { ok: false, error: 'Erro inesperado', details: message },
             { status: 500 }
         );
     }
