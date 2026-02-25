@@ -72,7 +72,7 @@ export async function getFrogToday() {
 
     const { data } = await supabase
         .from('tasks')
-        .select('title, status')
+        .select('id, title, status')
         .eq('user_id', user.id)
         .eq('planned_date', todayStr)
         .eq('is_frog', true)

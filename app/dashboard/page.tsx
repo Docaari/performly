@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { getFrogEatingStreak, getFrogToday, getTodayStats } from '@/modules/dashboard/queries';
+import { DashboardFrogToggle } from '@/components/DashboardFrogToggle';
 
 export const dynamic = 'force-dynamic';
 
@@ -56,14 +57,24 @@ export default async function DashboardPage() {
                             </Link>
                         </div>
                     ) : (
-                        <div className="flex flex-col justify-center">
-                            <p className={`text-xl font-bold line-clamp-2 ${isFrogCompleted ? 'text-gray-400 line-through' : 'text-gray-900'} mb-4 capitalize`}>
+                        <div className="flex flex-col justify-center gap-4">
+                            <p className={`text-xl font-bold line-clamp-2 ${isFrogCompleted ? 'text-gray-400 line-through' : 'text-gray-900'} capitalize`}>
                                 {frog.title}
                             </p>
-                            {!isFrogCompleted && (
-                                <Link href="/focus" className="text-sm self-start outline outline-2 outline-gray-200 outline-offset-0 bg-white text-gray-900 px-5 py-2.5 font-bold rounded-xl hover:bg-gray-50 hover:outline-gray-300 transition-all shadow-sm">
-                                    Focar 25:00
-                                </Link>
+                            {!isFrogCompleted ? (
+                                <div className="flex flex-wrap items-center gap-3">
+                                    <Link href="/focus" className="text-sm self-start outline outline-2 outline-gray-200 outline-offset-0 bg-white text-gray-900 px-5 py-2.5 font-bold rounded-xl hover:bg-gray-50 hover:outline-gray-300 transition-all shadow-sm">
+                                        Focar 25:00
+                                    </Link>
+                                    <DashboardFrogToggle taskId={frog.id} />
+                                </div>
+                            ) : (
+                                <div className="text-sm self-start outline outline-2 outline-transparent outline-offset-0 bg-green-100 text-green-800 px-5 py-2.5 font-bold rounded-xl shadow-sm flex items-center gap-2">
+                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                    </svg>
+                                    Sapo Vencido ✅
+                                </div>
                             )}
                         </div>
                     )}
