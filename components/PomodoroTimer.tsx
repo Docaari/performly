@@ -16,21 +16,6 @@ export function PomodoroTimer({ taskId, taskTitle }: Props) {
     const [isSaving, setIsSaving] = useState(false)
     const [successMsg, setSuccessMsg] = useState<string | null>(null)
 
-    useEffect(() => {
-        let interval: NodeJS.Timeout
-
-        if (isActive && timeLeft > 0) {
-            interval = setInterval(() => {
-                setTimeLeft(t => t - 1)
-            }, 1000)
-        } else if (isActive && timeLeft === 0) {
-            setIsActive(false)
-            handleComplete()
-        }
-
-        return () => clearInterval(interval)
-    }, [isActive, timeLeft])
-
     const handleComplete = async () => {
         setIsSaving(true)
         // Persiste no banco invocando Server Action
@@ -50,6 +35,22 @@ export function PomodoroTimer({ taskId, taskTitle }: Props) {
             alert("Erro ao salvar o pomodoro. Verifique sua conexão.")
         }
     }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    useEffect(() => {
+        let interval: NodeJS.Timeout
+
+        if (isActive && timeLeft > 0) {
+            interval = setInterval(() => {
+                setTimeLeft(t => t - 1)
+            }, 1000)
+        } else if (isActive && timeLeft === 0) {
+            setIsActive(false)
+            handleComplete()
+        }
+
+        return () => clearInterval(interval)
+    }, [isActive, timeLeft])
 
     const toggleTimer = () => {
         if (timeLeft === 0) setTimeLeft(DEFAULT_TIME)
@@ -108,8 +109,8 @@ export function PomodoroTimer({ taskId, taskTitle }: Props) {
                             onClick={toggleTimer}
                             disabled={isSaving}
                             className={`w-full flex-1 py-4 px-6 rounded-2xl font-bold text-lg sm:text-xl transition-all shadow-sm ${isActive
-                                    ? 'bg-red-50 text-red-600 border-2 border-red-200 hover:bg-red-100 active:scale-[0.98]'
-                                    : 'bg-black text-white border-2 border-black hover:bg-gray-800 active:scale-[0.98]'
+                                ? 'bg-red-50 text-red-600 border-2 border-red-200 hover:bg-red-100 active:scale-[0.98]'
+                                : 'bg-black text-white border-2 border-black hover:bg-gray-800 active:scale-[0.98]'
                                 }`}
                         >
                             {isActive ? 'Pausar' : 'Iniciar Foco'}

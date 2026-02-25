@@ -1,22 +1,36 @@
-export default function FocusPage() {
-    return (
-        <div className="p-6 md:p-10 flex flex-col items-center justify-center min-h-[85vh]">
-            <div className="text-center w-full max-w-md">
-                <h1 className="text-3xl font-extrabold text-gray-900 mb-2">Modo Ação</h1>
-                <p className="text-gray-500 mb-10">O barulho sumiu. Só a execução importa agora.</p>
+import Link from 'next/link';
+import { fetchFrogOfTheDay, fetchTodayPomodorosCount } from '@/modules/pomodoros/queries';
+import { PomodoroTimer } from '@/components/PomodoroTimer';
 
-                <div className="bg-white rounded-2xl border border-gray-200 p-10 py-14 text-center shadow-md">
-                    <div className="text-7xl font-mono text-gray-900 mb-4 tracking-tighter">25:00</div>
-                    <div className="inline-flex items-center space-x-2 bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-bold mb-6">
-                        <span>🐸</span>
-                        <span>Sapo do Dia</span>
-                    </div>
-                    <h2 className="text-xl font-medium text-gray-800 mb-10 px-4">Terminar o Documento de Arquitetura</h2>
-                    <button className="bg-green-600 text-white w-full py-4 rounded-xl font-bold text-lg hover:bg-green-700 transition shadow-sm">
-                        Iniciar Pomodoro
-                    </button>
+export const dynamic = 'force-dynamic';
+
+export default async function FocusPage() {
+    const frog = await fetchFrogOfTheDay();
+    const count = await fetchTodayPomodorosCount();
+
+    return (
+        <div className="p-6 md:p-10 max-w-4xl mx-auto">
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-2">
+                <h1 className="text-3xl font-extrabold text-gray-900">Modo Foco</h1>
+                <div className="flex items-center gap-2 bg-red-50 text-red-700 px-4 py-2 rounded-xl border border-red-100 font-semibold shadow-sm">
+                    <span className="text-xl leading-none">🍅</span> {count} {count === 1 ? 'Pomodoro' : 'Pomodoros'} hoje
                 </div>
             </div>
+
+            <p className="text-gray-500 mb-8 sm:mb-12">Execute a sua prioridade máxima e elimine distrações.</p>
+
+            {!frog ? (
+                <div className="bg-white rounded-2xl border border-gray-200 p-12 text-center shadow-sm">
+                    <div className="text-6xl mb-6 grayscale opacity-40">🐸</div>
+                    <h2 className="text-2xl font-bold mb-3 text-gray-900">Sem Sapo Definido</h2>
+                    <p className="text-gray-500 mb-8 max-w-md mx-auto text-lg">Você não possui nenhum Sapo ativo na sua mesa hoje, ou porque você já o comeu, ou porque faltou planejamento.</p>
+                    <Link href="/plan" className="inline-block bg-black text-white px-8 py-4 rounded-xl font-bold hover:bg-gray-800 transition shadow-sm hover:shadow-md hover:-translate-y-0.5 transform duration-200">
+                        Definir Sapo do Dia
+                    </Link>
+                </div>
+            ) : (
+                <PomodoroTimer taskId={frog.id} taskTitle={frog.title} />
+            )}
         </div>
     );
 }
