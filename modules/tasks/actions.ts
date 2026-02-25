@@ -121,3 +121,49 @@ export async function togglePlanForToday(taskId: string) {
     return { success: true }
 }
 
+export async function setFrogTask(taskId: string) {
+    const supabase = await createClient()
+
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { error: 'Sessão inválida' }
+
+    const todayStr = new Date().toISOString().split('T')[0]
+
+    // 1) Verify if it is planned for today
+    const { data: task, error: fetchError } = await supabase
+        .from('tasks')
+        .select('planned_date')
+        .eq('id', taskId)
+        .eq('user_id', user.id)
+        .single()
+
+    if (fetchError || !task) return { error: 'Tarefa não encontrada.' }
+    if (task.planned_date !== todayStr) return { error: 'Somente tarefas planejadas para hoje podem ser o Sapo.' }
+
+    // 2) Remove is_frog from any other tasks of this user today
+    const { error: resetError } = await supabase
+        .from('tasks')
+        .update({ is_frog: false })
+        .eq('user_id', user.id)
+        .eq('planned_date', todayStr)
+        .eq('is_frog', true)
+
+    if (resetError) return { error: 'Falha ao redefinir o sapo atual.' }
+
+    // 3) Set is_frog to true on the selected task
+    const { error: setFrogError } = await supabase
+        .from('tasks')
+        .update({ is_frog: true })
+        .eq('id', taskId)
+        .eq('user_id', user.id)
+
+    if (setFrogError) return { error: 'Falha ao definir novo Sapo.' }
+
+    revalidatePath('/plan')
+    revalidatePath('/focus')
+    revalidatePath('/tasks')
+    revalidatePath('/dashboard')
+
+    return { success: true }
+}
+

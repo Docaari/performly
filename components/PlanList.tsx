@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { togglePlanForToday } from '@/modules/tasks/actions'
+import { togglePlanForToday, setFrogTask } from '@/modules/tasks/actions'
 import type { Task } from '@/modules/tasks/queries'
 
 export function PlanList({ tasks }: { tasks: Task[] }) {
@@ -25,6 +25,15 @@ export function PlanList({ tasks }: { tasks: Task[] }) {
         })
     }
 
+    const handleFrogToggle = (taskId: string, e: React.MouseEvent) => {
+        e.stopPropagation() // impede que ative click parent (se tivermos clicks em toda row)
+        setError(null)
+        startTransition(async () => {
+            const res = await setFrogTask(taskId)
+            if (res?.error) setError(res.error)
+        })
+    }
+
     return (
         <div className={`transition-opacity duration-200 ${isPending ? 'opacity-60 pointer-events-none' : ''}`}>
             {error && (
@@ -36,7 +45,10 @@ export function PlanList({ tasks }: { tasks: Task[] }) {
             {/* Box do Top 6 */}
             <div className="mb-8">
                 <div className="flex justify-between items-end mb-4">
-                    <h2 className="text-xl font-extrabold text-gray-900">Top 6 (Hoje)</h2>
+                    <div>
+                        <h2 className="text-xl font-extrabold text-gray-900">Top 6 (Hoje)</h2>
+                        <p className="text-sm text-gray-500 mt-0.5">Sapo do Dia: apenas uma prioridade máxima</p>
+                    </div>
                     <span className={`text-sm font-bold ${todayTasks.length >= 6 ? 'text-green-600' : 'text-gray-500'}`}>
                         {todayTasks.length}/6 planejadas
                     </span>
@@ -50,7 +62,7 @@ export function PlanList({ tasks }: { tasks: Task[] }) {
                     <div className="bg-white rounded-xl border border-green-500/30 overflow-hidden shadow-sm shadow-green-100/50">
                         <ul className="divide-y divide-gray-100">
                             {todayTasks.map(task => (
-                                <li key={task.id} className="p-4 sm:p-5 flex items-center gap-4 hover:bg-gray-50 transition-colors">
+                                <li key={task.id} className={`p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center gap-4 hover:bg-gray-50 transition-colors ${task.is_frog ? 'bg-green-50/30' : ''}`}>
                                     <button
                                         onClick={() => handleToggle(task.id)}
                                         className="shrink-0 w-6 h-6 rounded border-2 border-black bg-black text-white flex items-center justify-center hover:bg-red-500 hover:border-red-500 transition-colors"
@@ -60,9 +72,22 @@ export function PlanList({ tasks }: { tasks: Task[] }) {
                                             <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                                         </svg>
                                     </button>
-                                    <div className="flex-1 flex items-center gap-2">
-                                        <span className="font-semibold text-gray-900">{task.title}</span>
-                                        {task.is_frog && <span className="text-lg leading-none">🐸</span>}
+                                    <div className="flex-1 flex flex-col sm:flex-row sm:items-center justify-between gap-3 w-full">
+                                        <span className="font-semibold text-gray-900 pr-2">{task.title}</span>
+
+                                        {/* Botão de Frog */}
+                                        <button
+                                            onClick={(e) => handleFrogToggle(task.id, e)}
+                                            className={`shrink-0 px-3 py-1.5 rounded-lg text-sm font-bold transition-colors border shadow-sm flex items-center gap-1.5 w-full sm:w-auto justify-center ${task.is_frog
+                                                    ? 'bg-green-100 text-green-800 border-green-200 cursor-default'
+                                                    : 'bg-white text-gray-400 border-gray-200 hover:bg-green-50 hover:text-green-600 hover:border-green-200'
+                                                }`}
+                                            title={task.is_frog ? "Este é o seu Sapo do dia" : "Definir como Sapo do dia"}
+                                            disabled={task.is_frog}
+                                        >
+                                            <span className="text-base leading-none grayscale-[0.2]">🐸</span>
+                                            {task.is_frog ? 'Sapo Ativo' : 'Definir Sapo'}
+                                        </button>
                                     </div>
                                 </li>
                             ))}
