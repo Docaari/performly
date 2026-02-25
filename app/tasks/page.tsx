@@ -1,4 +1,5 @@
 import { fetchTasks, type Task } from '@/modules/tasks/queries';
+import { CreateTaskForm } from '@/components/CreateTaskForm';
 
 export const dynamic = 'force-dynamic';
 
@@ -39,6 +40,8 @@ export default async function TasksPage() {
             <h1 className="text-3xl font-extrabold text-gray-900 mb-2">Central de Tarefas</h1>
             <p className="text-gray-500 mb-8">Descarregue sua mente. Todo começo nasce aqui.</p>
 
+            <CreateTaskForm />
+
             {fetchError && (
                 <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg mb-6 shadow-sm">
                     <p className="font-semibold">Falha na Comunicação</p>
@@ -50,10 +53,7 @@ export default async function TasksPage() {
                 <div className="bg-white rounded-xl border border-gray-200 border-dashed p-10 text-center shadow-sm">
                     <div className="text-4xl mb-4">📭</div>
                     <h2 className="text-xl font-semibold mb-2">Sua mente está limpa</h2>
-                    <p className="text-gray-500 mb-6 max-w-md mx-auto">Surgiu uma ideia ou demanda? Adicione na Central antes de esquecer. Sem categorizações complexas, apenas capture.</p>
-                    <button disabled className="bg-gray-200 text-gray-500 px-6 py-2.5 rounded-lg font-medium cursor-not-allowed">
-                        + Nova Tarefa (Modo Leitura)
-                    </button>
+                    <p className="text-gray-500 mb-2 max-w-md mx-auto">Use o campo de captura acima para descarregar o que precisa ser feito hoje, ou simplesmente esvaziar a cabeça.</p>
                 </div>
             ) : !fetchError ? (
                 <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">

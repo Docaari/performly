@@ -12,27 +12,29 @@ function LoginContent() {
 
     const supabase = createClient();
 
-    useEffect(() => {
+    let displayMessage = message;
+
+    if (!displayMessage) {
         const error = searchParams.get("error");
         const errorDesc = searchParams.get("error_description");
 
         if (error || errorDesc) {
             const fullError = (errorDesc || error || "").toLowerCase();
             if (fullError.includes("expired") || error === "otp_expired") {
-                setMessage({
+                displayMessage = {
                     text: "O link expirou ou já foi usado. Por favor, solicite um novo Magic Link e clique no recebido mais recentemente.",
                     type: "error"
-                });
+                };
             } else if (error === "missing_params") {
-                setMessage({ text: "Link incompleto ou inválido. Tente novamente.", type: "error" });
+                displayMessage = { text: "Link incompleto ou inválido. Tente novamente.", type: "error" };
             } else if (error === "auth_failed") {
                 const reason = searchParams.get("reason");
-                setMessage({ text: `Falha na Autenticação: ${reason || "Credencial inválida."}`, type: "error" });
+                displayMessage = { text: `Falha na Autenticação: ${reason || "Credencial inválida."}`, type: "error" };
             } else {
-                setMessage({ text: "Não foi possível autenticar. Detalhes: " + (errorDesc || error), type: "error" });
+                displayMessage = { text: "Não foi possível autenticar. Detalhes: " + (errorDesc || error), type: "error" };
             }
         }
-    }, [searchParams]);
+    }
 
     const handleMagicLink = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -72,9 +74,9 @@ function LoginContent() {
                 <h1 className="text-3xl font-extrabold text-gray-900 mb-2">Performly</h1>
                 <p className="text-gray-500 mb-8">Clareza Radical → Execução Consistente</p>
 
-                {message && (
-                    <div className={`p - 4 rounded - lg mb - 6 text - sm font - medium ${message.type === "error" ? "bg-red-50 text-red-600" : "bg-green-50 text-green-700"} `}>
-                        {message.text}
+                {displayMessage && (
+                    <div className={`p-4 rounded-lg mb-6 text-sm font-medium ${displayMessage.type === "error" ? "bg-red-50 text-red-600" : "bg-green-50 text-green-700"}`}>
+                        {displayMessage.text}
                     </div>
                 )}
 
