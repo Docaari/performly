@@ -26,6 +26,14 @@ Este documento registra as decisões fundamentais, mínimas e reversíveis, nece
 **A Decisão:** O Escopo do MVP está perfeitamente delimitado no PRD; qualquer nova ideia, sugestão de "feature rápida" ou funcionalidade complexa fora do escopo original será imediatamente movida para o backlog (lista de ideias/roadmap futuro) e não será desenvolvida agora.
 **O Por Quê:** Porque focar no núcleo essencial e lançar rápido é a única forma de provar o valor real do produto (o "Clareza Radical → Execução"), protegendo o projeto contra a paralisia do inchaço de funcionalidades (feature creep).
 
+## 7. Stack Tecnológica (MVP) — Decisão Fechada
+- **Frontend/Backend:** Next.js (React) + TypeScript — Unifica visual e servidor, garantindo produtividade e velocidade para desenvolvimento solo.
+- **UI:** TailwindCSS — Permite criar componentes responsivos e bonitos rapidamente sem gerenciar arquivos CSS avulsos.
+- **Banco de Dados:** Supabase (PostgreSQL) — Mantém as regras "Clareza RadicaI" (Top 6, Sapo) íntegras e centralizadas num banco relacional de confiança.
+- **Auth:** Supabase Auth (Google + Magic Link por e-mail) — Fluxo rápido e indolor para não afastar a persona que quer zero atrito.
+- **Deploy:** Vercel — Hospedagem simples que escala junto, subindo a aplicação automaticamente a cada nova atualização na main.
+- **Observação:** O MVP prioriza simplicidade e integridade de dados; todas as decisões aqui podem ser revisadas no longo prazo pós-MVP sem medo.
+
 ---
 
 ## Decisões Pendentes (Próximos Passos)
