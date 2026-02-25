@@ -63,3 +63,61 @@ export async function toggleTaskComplete(taskId: string, nextStatus: 'completed'
     return { success: true }
 }
 
+export async function togglePlanForToday(taskId: string) {
+    const supabase = await createClient()
+
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { error: 'Sessão inválida' }
+
+    const todayStr = new Date().toISOString().split('T')[0]
+
+    // Pega a tarefa atual para ver o statis de plan
+    const { data: task, error: fetchError } = await supabase
+        .from('tasks')
+        .select('planned_date')
+        .eq('id', taskId)
+        .eq('user_id', user.id)
+        .single()
+
+    if (fetchError || !task) return { error: 'Tarefa não encontrada.' }
+
+    const isPlannedForToday = task.planned_date === todayStr
+
+    if (isPlannedForToday) {
+        // Remover de hoje
+        const { error: updateError } = await supabase
+            .from('tasks')
+            .update({ planned_date: null })
+            .eq('id', taskId)
+            .eq('user_id', user.id)
+
+        if (updateError) return { error: 'Falha ao remover do planejamento.' }
+    } else {
+        // Checar limite Ivy Lee (max 6 tarefas com planned_date = hoje)
+        const { count, error: countError } = await supabase
+            .from('tasks')
+            .select('*', { count: 'exact', head: true })
+            .eq('user_id', user.id)
+            .eq('planned_date', todayStr)
+
+        if (countError) return { error: 'Erro ao checar limite.' }
+        if (count && count >= 6) {
+            return { error: 'Limite de 6 prioridades alcançado para hoje. Desmarque uma para poder adicionar.' }
+        }
+
+        // Adicionar a hoje
+        const { error: updateError } = await supabase
+            .from('tasks')
+            .update({ planned_date: todayStr })
+            .eq('id', taskId)
+            .eq('user_id', user.id)
+
+        if (updateError) return { error: 'Falha ao adicionar ao planejamento.' }
+    }
+
+    revalidatePath('/plan')
+    revalidatePath('/tasks')
+    revalidatePath('/dashboard')
+    return { success: true }
+}
+
