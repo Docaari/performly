@@ -1,5 +1,6 @@
 import { fetchTasks, type Task } from '@/modules/tasks/queries';
 import { CreateTaskForm } from '@/components/CreateTaskForm';
+import { TaskItem } from '@/components/TaskItem';
 
 export const dynamic = 'force-dynamic';
 
@@ -11,28 +12,6 @@ export default async function TasksPage() {
         tasks = await fetchTasks();
     } catch (error: unknown) {
         fetchError = error instanceof Error ? error.message : String(error);
-    }
-
-    const renderStatus = (status: string) => {
-        switch (status) {
-            case 'pending': return <span className="text-gray-500 text-sm font-medium">Pendente</span>;
-            case 'in_progress': return <span className="text-blue-600 text-sm font-medium">Em Progresso</span>;
-            case 'completed': return <span className="text-green-600 text-sm font-medium">Concluída</span>;
-            case 'archived': return <span className="text-gray-400 text-sm font-medium">Arquivada</span>;
-            default: return null;
-        }
-    };
-
-    const renderDate = (date: string | null) => {
-        if (!date) return <span className="text-gray-400 text-sm">Sem data</span>;
-
-        const todayDate = new Date();
-        const today = new Date(todayDate.getTime() - todayDate.getTimezoneOffset() * 60000).toISOString().split('T')[0];
-
-        if (date === today) return <span className="text-blue-600 font-semibold text-sm">Hoje</span>;
-
-        const [y, m, d] = date.split('-');
-        return <span className="text-gray-600 text-sm">{`${d}/${m}/${y}`}</span>;
     }
 
     return (
@@ -59,27 +38,7 @@ export default async function TasksPage() {
                 <div className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm">
                     <ul className="divide-y divide-gray-100">
                         {tasks.map(task => (
-                            <li key={task.id} className="p-4 sm:p-5 hover:bg-gray-50 transition flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                                <div className="flex items-start gap-3">
-                                    <div className="mt-1 flex-shrink-0">
-                                        {task.is_frog ? (
-                                            <span className="text-2xl drop-shadow-sm" title="Sapo do Dia">🐸</span>
-                                        ) : (
-                                            <span className="text-gray-300 text-xl">⬜</span>
-                                        )}
-                                    </div>
-                                    <div>
-                                        <h3 className={`font-semibold text-gray-900 ${task.status === 'completed' ? 'line-through opacity-50' : ''}`}>
-                                            {task.title}
-                                        </h3>
-                                        <div className="flex flex-wrap items-center gap-3 mt-1.5">
-                                            {renderStatus(task.status)}
-                                            <span className="text-gray-300">•</span>
-                                            {renderDate(task.planned_date)}
-                                        </div>
-                                    </div>
-                                </div>
-                            </li>
+                            <TaskItem key={task.id} task={task} />
                         ))}
                     </ul>
                 </div>

@@ -35,3 +35,31 @@ export async function createTask(formData: FormData) {
     revalidatePath('/tasks')
     return { success: true }
 }
+
+export async function toggleTaskComplete(taskId: string, nextStatus: 'completed' | 'pending') {
+    const supabase = await createClient()
+
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { error: 'Sessão inválida' }
+
+    // RLS will ensure user only updates their own tasks, but we add an explicit .eq('user_id') anyway
+    const updateData = {
+        status: nextStatus,
+        completed_at: nextStatus === 'completed' ? new Date().toISOString() : null
+    }
+
+    const { error } = await supabase
+        .from('tasks')
+        .update(updateData)
+        .eq('id', taskId)
+        .eq('user_id', user.id)
+
+    if (error) {
+        console.error('Falha ao atualizar tarefa:', error)
+        return { error: 'Falha ao atualizar a tarefa.' }
+    }
+
+    revalidatePath('/tasks')
+    return { success: true }
+}
+
