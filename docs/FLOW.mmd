@@ -1,0 +1,61 @@
+%% Fluxo Operacional - Performly (MVP)
+%% Este fluxograma representa o loop diário do usuário, focando em Clareza Radical e Execução Consistente.
+
+flowchart TD
+    %% Inicialização e Verificação de Estado
+    Start([Usuário abre o app]) --> CheckPlan{Já tem o Top 6\ndo dia definido?}
+
+    %% ==========================================
+    %% FASE 1: CAPTURA E CLAREZA (PLAN-FIRST)
+    %% ==========================================
+    CheckPlan -- Não --> CapturePhase[Abrir Central de Tarefas]
+    
+    subgraph Fase 1: Clareza Radical
+        CapturePhase --> AddThoughts(Opcional: Captura rápida\nde novas ideias)
+        AddThoughts --> IvyLee[Selecionar no máximo 6 tarefas\n(Metodologia Ivy Lee)]
+        IvyLee --> ChooseFrog[Definir 1 destas 6 como\no 'Sapo do Dia']
+        ChooseFrog --> LockPlan([Bloquear a lista diária])
+    end
+
+    LockPlan --> ActionDashboard
+
+    %% ==========================================
+    %% FASE 2: EXECUÇÃO CONSISTENTE
+    %% ==========================================
+    CheckPlan -- Sim --> ActionDashboard[Exibir apenas as Top 6 \n(Central de Tarefas oculta)]
+    
+    subgraph Fase 2: Execução e Foco
+        ActionDashboard --> FocusFrog{O 'Sapo' já\n foi concluído?}
+        
+        %% Execução do Sapo (Prioridade Máxima)
+        FocusFrog -- Não --> StartPomodoroFrog[Iniciar Pomodoro para o Sapo]
+        StartPomodoroFrog --> WorkSessionFrog(25 min de foco profundo)
+        WorkSessionFrog --> IsFrogDone{Sapo concluído?}
+        IsFrogDone -- Não --> BreakFrog(5 min de pausa)
+        BreakFrog --> StartPomodoroFrog
+        IsFrogDone -- Sim --> MarkFrogDone[Marcar Sapo como Concluído] 
+        
+        %% Execução das demais regras (Top 2-6)
+        FocusFrog -- Sim --> SelectOtherTask[Selecionar próxima tarefa do Top 6]
+        SelectOtherTask --> StartPomodoroOther[Iniciar Pomodoro]
+        StartPomodoroOther --> WorkSessionOther(25 min de foco profundo)
+        WorkSessionOther --> IsTaskDone{Tarefa concluída?}
+        IsTaskDone -- Não --> BreakOther(5 min de pausa)
+        BreakOther --> StartPomodoroOther
+        IsTaskDone -- Sim --> MarkTaskDone[Marcar Tarefa como Concluída]
+    end
+
+    %% ==========================================
+    %% FASE 3: RECOMPENSA E MÉTRICAS
+    %% ==========================================
+    subgraph Fase 3: Recompensa e Continuidade
+        MarkFrogDone -.-> UpdateStreak([🏆 Aumentar Frog-Eating Streak])
+        UpdateStreak -.-> DashboardStats[Atualizar Dashboard e Progresso]
+        MarkTaskDone -.-> DashboardStats
+    end
+
+    DashboardStats --> DayEnd{Fim do dia\nde trabalho?}
+    DayEnd -- Não --> ActionDashboard
+    DayEnd -- Sim --> NextDayPrep[Preparar próximo dia:\nVoltando para a Central]
+    NextDayPrep --> ResetState([🔄 Reset Diário: Limpar Sapo e Top 6 anterior])
+    ResetState --> CapturePhase
