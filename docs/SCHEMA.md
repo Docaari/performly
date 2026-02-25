@@ -115,3 +115,46 @@ WHERE user_id = 'id-do-usuario'
   AND DATE(completed_at) = planned_date 
 ORDER BY planned_date DESC;
 ```
+
+---
+
+## D) Melhorias e Prevenção de Bugs (Evolução do Schema)
+
+Após revisão minuciosa, algumas lacunas foram identificadas e fechadas para proteger o sistema no longo prazo (evitar estados impossíveis), sem adicionar escopo desnecessário.
+
+**Lista de Mudanças Implementadas:**
+1. **Flexibilização do Status Enum**: A restrição original verificava apenas (`'pending'`, `'completed'`). Expandimos para permitir `'in_progress'` (útil quando o Sapo estiver rodando no Pomodoro) e `'archived'` (para limpeza visual pós-MVP mantendo histórico).
+2. **Obrigatoriedade de Data para o Sapo**: No schema original, o banco permitia (teoricamente) que uma tarefa fosse marcada como Sapo (`is_frog=true`) mesmo com a data nula. Modificamos para proibir isso nativamente. Todo Sapo precisa existir em um dia de Top 6.
+3. **Índices Compostos e Precisos**: Todas as consultas do Dashboard buscarão pelo `user_id` E o `status` ao mesmo tempo. A adição de índices compostos melhora significativamente a performance inicial.
+
+### SQL de Migração (Aplicações para o Supabase)
+
+**1. Expansão Inteligente do Status (Mantendo retrocompatibilidade)**
+```sql
+-- Remove a trava engessada antiga
+ALTER TABLE tasks DROP CONSTRAINT tasks_status_check;
+
+-- Adiciona a nova trava mais flexível para suportar o motor Pomodoro
+ALTER TABLE tasks ADD CONSTRAINT tasks_status_check 
+CHECK (status IN ('pending', 'in_progress', 'completed', 'archived'));
+```
+
+**2. Integridade Absoluta (Sapo Obriga Data)**
+```sql
+-- O banco barra qualquer inserção de Sapo sem data estipulada
+ALTER TABLE tasks ADD CONSTRAINT chk_frog_requires_date 
+CHECK (
+  (is_frog = false) OR 
+  (is_frog = true AND planned_date IS NOT NULL)
+);
+```
+
+**3. Índices Compostos para Velocidade Real**
+```sql
+-- Otimiza a abertura do Dashboard (busca por usuário E status do dia simultaneamente)
+CREATE INDEX idx_tasks_user_status_date ON tasks (user_id, status, planned_date);
+
+-- Otimiza especificamente a varredura do histórico da North Star Metric
+CREATE INDEX idx_tasks_streak_audit ON tasks (user_id, is_frog, status) 
+WHERE is_frog = true;
+```
