@@ -1,15 +1,33 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { createClient } from "@/utils/supabase/client";
-import { useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 
-export default function LoginPage() {
+function LoginContent() {
+    const searchParams = useSearchParams();
     const [email, setEmail] = useState("");
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState<{ text: string; type: "error" | "success" } | null>(null);
 
     const supabase = createClient();
+
+    useEffect(() => {
+        const error = searchParams.get("error");
+        const errorDesc = searchParams.get("error_description");
+
+        if (error || errorDesc) {
+            const fullError = (errorDesc || error || "").toLowerCase();
+            if (fullError.includes("expired") || error === "otp_expired") {
+                setMessage({
+                    text: "O link expirou ou já foi usado. Por favor, solicite um novo Magic Link e certifique-se de clicar no email mais recente recebido.",
+                    type: "error"
+                });
+            } else {
+                setMessage({ text: "Não foi possível autenticar. Detalhes: " + (errorDesc || error), type: "error" });
+            }
+        }
+    }, [searchParams]);
 
     const handleMagicLink = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -19,7 +37,7 @@ export default function LoginPage() {
         const { error } = await supabase.auth.signInWithOtp({
             email,
             options: {
-                emailRedirectTo: `${location.origin}/auth/confirm`,
+                emailRedirectTo: `${location.origin} /auth/callback`,
             },
         });
 
@@ -36,7 +54,7 @@ export default function LoginPage() {
         const { error } = await supabase.auth.signInWithOAuth({
             provider: "google",
             options: {
-                redirectTo: `${location.origin}/auth/callback`,
+                redirectTo: `${location.origin} /auth/callback`,
             },
         });
 
@@ -50,7 +68,7 @@ export default function LoginPage() {
                 <p className="text-gray-500 mb-8">Clareza Radical → Execução Consistente</p>
 
                 {message && (
-                    <div className={`p-4 rounded-lg mb-6 text-sm font-medium ${message.type === "error" ? "bg-red-50 text-red-600" : "bg-green-50 text-green-700"}`}>
+                    <div className={`p - 4 rounded - lg mb - 6 text - sm font - medium ${message.type === "error" ? "bg-red-50 text-red-600" : "bg-green-50 text-green-700"} `}>
                         {message.text}
                     </div>
                 )}
@@ -96,5 +114,13 @@ export default function LoginPage() {
                 </form>
             </div>
         </div>
+    );
+}
+
+export default function LoginPage() {
+    return (
+        <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-gray-50 text-gray-400">Verificando...</div>}>
+            <LoginContent />
+        </Suspense>
     );
 }

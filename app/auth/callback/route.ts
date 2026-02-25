@@ -15,5 +15,5 @@ export async function GET(request: Request) {
         }
     }
 
-    return NextResponse.redirect(`${origin}/login?error=NaoFoiPossivelLogarNoGoogle`)
+    return NextResponse.redirect(`${origin}/login?error=FalhaNaAutenticacao&error_description=NaoFoiPossivelValidarOSeuLink`)
 }
