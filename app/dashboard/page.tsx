@@ -1,7 +1,12 @@
+import { ConnectionStatus } from "@/components/ConnectionStatus";
+
 export default function DashboardPage() {
     return (
         <div className="p-6 md:p-10 max-w-4xl mx-auto">
-            <h1 className="text-3xl font-extrabold text-gray-900 mb-2">Dashboard</h1>
+            <div className="flex justify-between items-center mb-2">
+                <h1 className="text-3xl font-extrabold text-gray-900">Dashboard</h1>
+                <ConnectionStatus />
+            </div>
             <p className="text-gray-500 mb-8">Acompanhe seu Frog-Eating Streak e progresso diário.</p>
 
             <div className="bg-white rounded-xl border border-gray-200 p-8 text-center shadow-sm">
