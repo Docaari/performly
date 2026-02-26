@@ -1,4 +1,5 @@
 import { createClient } from '@/utils/supabase/server'
+import { getTodayStrServer, formatServerDateStr } from '@/utils/date'
 
 export async function getFrogEatingStreak() {
     const supabase = await createClient()
@@ -20,18 +21,18 @@ export async function getFrogEatingStreak() {
     const validFrogs = data.filter(t => {
         if (!t.completed_at || !t.planned_date) return false
         // Split timestamp pra pegar YYYY-MM-DD
-        const compDateStr = new Date(t.completed_at).toISOString().split('T')[0]
+        const compDateStr = formatServerDateStr(new Date(t.completed_at))
         return compDateStr === t.planned_date
     })
 
     if (validFrogs.length === 0) return 0
 
-    const todayStr = new Date().toISOString().split('T')[0]
+    const todayStr = getTodayStrServer()
 
     // Ontem
     const d = new Date()
     d.setDate(d.getDate() - 1)
-    const yesterdayStr = d.toISOString().split('T')[0]
+    const yesterdayStr = formatServerDateStr(d)
 
     // Streak Logic Loop
     let streak = 0
@@ -51,9 +52,9 @@ export async function getFrogEatingStreak() {
             streak++
 
             // ExpectedDate regride 1 dia certinho de acordo com o JS Date Engine UTC safe.
-            const curDateObj = new Date(currentStr)
+            const curDateObj = new Date(`${currentStr}T12:00:00`)
             curDateObj.setDate(curDateObj.getDate() - 1)
-            expectedDate = curDateObj.toISOString().split('T')[0]
+            expectedDate = formatServerDateStr(curDateObj)
         } else {
             // Se rompeu, nao desce mais.
             break
@@ -68,11 +69,11 @@ export async function getFrogToday() {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return null
 
-    const todayStr = new Date().toISOString().split('T')[0]
+    const todayStr = getTodayStrServer()
 
     const { data } = await supabase
         .from('tasks')
-        .select('id, title, status')
+        .select('id, title, status, intended_start_time')
         .eq('user_id', user.id)
         .eq('planned_date', todayStr)
         .eq('is_frog', true)

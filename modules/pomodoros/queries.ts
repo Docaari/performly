@@ -1,12 +1,11 @@
 import { createClient } from '@/utils/supabase/server'
+import { getTodayStrServer } from '@/utils/date'
 
 export async function fetchFrogOfTheDay() {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return null
-
-    const todayStr = new Date().toISOString().split('T')[0]
-
+    const todayStr = getTodayStrServer()
     const { data, error } = await supabase
         .from('tasks')
         .select('*')

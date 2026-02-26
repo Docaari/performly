@@ -36,7 +36,7 @@ export async function updateSession(request: NextRequest) {
     } = await supabase.auth.getUser()
 
     // Proteger rotas autenticadas do MVP
-    const isAuthRoute = ['/dashboard', '/tasks', '/plan', '/focus'].some((route) =>
+    const isAuthRoute = ['/dashboard', '/tasks', '/plan', '/focus', '/foco'].some((route) =>
         request.nextUrl.pathname.startsWith(route)
     );
 
@@ -46,10 +46,18 @@ export async function updateSession(request: NextRequest) {
         return NextResponse.redirect(url)
     }
 
-    // Se o usuário já está logado e tenta ir pra raiz ou tela de login, jogar pro dashboard
+    // Se o usuário já está logado e tenta ir pra raiz ou tela de login, jogar pro foco
     if (user && (request.nextUrl.pathname === '/login' || request.nextUrl.pathname === '/')) {
         const url = request.nextUrl.clone()
-        url.pathname = '/dashboard'
+        url.pathname = '/foco'
+        return NextResponse.redirect(url)
+    }
+
+    // Se tentar acessar as rotas obsoletas diretamente pelo middleware (garantia extra)
+    if (user && (request.nextUrl.pathname === '/plan' || request.nextUrl.pathname === '/tasks')) {
+        const url = request.nextUrl.clone()
+        // Preserva querystring se houver
+        url.pathname = '/foco'
         return NextResponse.redirect(url)
     }
 

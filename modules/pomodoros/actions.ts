@@ -9,16 +9,20 @@ export async function createPomodoro(taskId: string, durationMinutes: number = 2
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return { error: 'Sessão inválida' }
 
-    const { error } = await supabase.from('pomodoros').insert({
+    const { data, error } = await supabase.from('pomodoros').insert({
         user_id: user.id,
         task_id: taskId,
         duration_minutes: durationMinutes,
         // completed_at falls back to NOW() organically via Supabase Schema Defaults
-    })
+    }).select()
 
     if (error) {
         console.error('Falha ao registrar pomodoro:', error.message)
         return { error: 'Falha ao salvar pomodoro no banco de dados.' }
+    }
+
+    if (!data || data.length === 0) {
+        return { error: 'Falha silenciosa ao contabilizar pomodoro.' }
     }
 
     revalidatePath('/focus')

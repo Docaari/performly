@@ -22,11 +22,12 @@ export default async function FocusPage() {
             {!frog ? (
                 <div className="bg-white rounded-2xl border border-gray-200 p-12 text-center shadow-sm">
                     <div className="text-6xl mb-6 grayscale opacity-40">🐸</div>
-                    <h2 className="text-2xl font-bold mb-3 text-gray-900">Sem Sapo Definido</h2>
-                    <p className="text-gray-500 mb-8 max-w-md mx-auto text-lg">Você não possui nenhum Sapo ativo na sua mesa hoje, ou porque você já o comeu, ou porque faltou planejamento.</p>
-                    <Link href="/plan" className="inline-block bg-black text-white px-8 py-4 rounded-xl font-bold hover:bg-gray-800 transition shadow-sm hover:shadow-md hover:-translate-y-0.5 transform duration-200">
-                        Definir Sapo do Dia
-                    </Link>
+                    <div className="flex flex-col items-center justify-center p-8 bg-white border-2 border-dashed border-gray-300 rounded-3xl animate-in fade-in duration-500">
+                        <p className="text-gray-500 mb-6 font-medium text-lg">Você não tem um Sapo (prioridade máxima) para hoje.</p>
+                        <Link href="/foco" className="inline-block bg-black text-white px-8 py-4 rounded-xl font-bold hover:bg-gray-800 transition-all duration-300 shadow-sm hover:shadow-lg hover:-translate-y-0.5">
+                            Definir Sapo no Foco
+                        </Link>
+                    </div>
                 </div>
             ) : (
                 <PomodoroTimer taskId={frog.id} taskTitle={frog.title} />
